@@ -1,0 +1,35 @@
+wwwroot\alert-removal-instructions.html
+wwwroot\confirmation.html
+wwwroot\customer.html
+wwwroot\Files\BKash.svg
+wwwroot\Files\Mastercard.png
+wwwroot\Files\Screenshot.png
+wwwroot\Files\Visa.png
+wwwroot\fixed-booking-function.js
+wwwroot\home.html
+wwwroot\host.html
+wwwroot\index.html
+wwwroot\new-booking-function.js
+wwwroot\properties.html
+wwwroot\register.html
+wwwroot\super-admin.js
+wwwroot\test-redirect.html
+wwwroot\admin-login.html
+wwwroot\Payment.html
+wwwroot\superadmin.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\alert-removal-instructions.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\confirmation.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\customer.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\Files\BKash.svg
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\fixed-booking-function.js
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\home.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\host.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\index.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\new-booking-function.js
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\properties.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\register.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\super-admin.js
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\test-redirect.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\admin-login.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\Payment.html
+C:\Users\Ahmad Zubayer\Documents\OOP-2 Project\StayFinder-Web-API\StayFinder-Web-API\wwwroot\superadmin.html

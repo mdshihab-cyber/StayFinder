@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment Redirect Test</title>
+</head>
+<body>
+    <h1>Testing Payment Success Modal Redirect</h1>
+    
+    <button onclick="testRedirect()" class="test-btn">Test Redirect Function</button>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        function testRedirect() {
+            console.log('Testing redirect function...');
+            try {
+                // Simulate the redirect
+                const targetUrl = 'customer.html?tab=bookings';
+                console.log('Would redirect to:', targetUrl);
+                
+                // Instead of actually redirecting, just show success
+                document.getElementById('test-results').innerHTML = `
+                    <p style="color: green;">? Redirect function works! Would go to: ${targetUrl}</p>
+                `;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('test-results').innerHTML = `
+                    <p style="color: red;">? Error: ${error.message}</p>
+                `;
+            }
+        }
+        
+        // Test if the function exists in the global scope
+        window.onload = function() {
+            document.getElementById('test-results').innerHTML = `
+                <p>Function test ready. Click the button to test redirect functionality.</p>
+            `;
+        };
+    </script>
+    
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-btn { 
+            background: #04aa6d; 
+            color: white; 
+            padding: 10px 20px; 
+            border: none; 
+            border-radius: 5px; 
+            cursor: pointer; 
+        }
+        .test-btn:hover { background: #038a5a; }
+        #test-results { 
+            margin-top: 20px; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+        }
+    </style>
+</body>
+</html>

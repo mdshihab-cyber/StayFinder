@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - StayFinder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="font-['Roboto'] bg-gray-50">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-2xl font-bold text-[#04aa6d] hover:text-[#038a5a] transition-colors">
+                    StayFinder
+                </a>
+                <span class="text-gray-400">|</span>
+                <h1 class="text-xl font-semibold text-gray-800">Booking Confirmation</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="customer.html" class="btn btn-sm bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                    Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6 max-w-2xl">
+        <!-- Success Message -->
+        <div class="text-center mb-8">
+            <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Booking Confirmed!</h1>
+            <p class="text-gray-600">Thank you for choosing StayFinder. Your reservation is now confirmed.</p>
+        </div>
+
+        <!-- Booking Details Card -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Confirmation Details</h2>
+                <span class="badge badge-success text-white">Confirmed</span>
+            </div>
+
+            <!-- Booking Info -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Booking ID:</span>
+                    <span id="booking-id" class="font-semibold">#Loading...</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Property:</span>
+                    <span id="property-name" class="font-semibold">Loading...</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Location:</span>
+                    <span id="property-location" class="font-semibold">Loading...</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Check-in:</span>
+                    <span id="check-in-date" class="font-semibold">Loading...</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Check-out:</span>
+                    <span id="check-out-date" class="font-semibold">Loading...</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                    <span class="text-gray-600">Guests:</span>
+                    <span id="guests-count" class="font-semibold">Loading...</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-600">Total Amount:</span>
+                    <span id="total-amount" class="font-bold text-[#04aa6d] text-lg">$Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+            <h3 class="font-semibold text-blue-800 mb-3">What's Next?</h3>
+            <ul class="space-y-2 text-blue-700">
+                <li class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    You will receive a confirmation email shortly
+                </li>
+                <li class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    Check-in instructions will be sent 24 hours before arrival
+                </li>
+                <li class="flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    You can manage your booking in your customer dashboard
+                </li>
+            </ul>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col md:flex-row gap-4 justify-center">
+            <a href="customer.html?tab=bookings" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                View All Bookings
+            </a>
+            <a href="index.html" class="btn btn-outline">
+                Browse More Properties
+            </a>
+            <button onclick="window.print()" class="btn btn-outline">
+                Print Confirmation
+            </button>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="text-center mt-8 p-4 bg-gray-100 rounded-lg">
+            <p class="text-gray-600 mb-2">Need help with your booking?</p>
+            <a href="mailto:support@stayfinder.com" class="text-[#04aa6d] hover:underline font-medium">
+                Contact Support
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const BOOKINGS_API_URL = "/api/Bookings";
+
+        // Extract booking ID from URL parameters
+        function getBookingIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('bookingId') || sessionStorage.getItem('confirmedBookingId');
+        }
+
+        // Load booking details
+        async function loadBookingDetails() {
+            const bookingId = getBookingIdFromURL();
+            
+            if (!bookingId) {
+                // Redirect silently without alert
+                window.location.href = 'customer.html';
+                return;
+            }
+
+            try {
+                // In a real implementation, you would fetch booking details from the API
+                // For now, we'll show the booking ID and placeholder data
+                document.getElementById('booking-id').textContent = `#${bookingId}`;
+                
+                // You can implement actual API call here later:
+                // const response = await fetch(`${BOOKINGS_API_URL}/${bookingId}`);
+                // const booking = await response.json();
+                
+                // For now, show placeholder data
+                document.getElementById('property-name').textContent = 'Property details will be loaded here';
+                document.getElementById('property-location').textContent = 'Location will be loaded here';
+                document.getElementById('check-in-date').textContent = new Date().toLocaleDateString();
+                document.getElementById('check-out-date').textContent = new Date(Date.now() + 86400000).toLocaleDateString();
+                document.getElementById('guests-count').textContent = '2 guests';
+                document.getElementById('total-amount').textContent = '$XXX.XX';
+
+            } catch (error) {
+                console.error('Error loading booking details:', error);
+                // Log error instead of showing alert
+                console.warn('Error loading booking details. Please try again.');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            loadBookingDetails();
+            
+            // Clear session storage after loading
+            sessionStorage.removeItem('confirmedBookingId');
+        });
+    </script>
+
+</body>
+</html>

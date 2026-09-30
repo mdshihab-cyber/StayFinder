@@ -1,0 +1,894 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - StayFinder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: 'Roboto', sans-serif; }
+        .payment-method.selected { border-color: #04aa6d; box-shadow: 0 0 0 2px #04aa6d33; }
+        
+        /* Enhanced rating system styles */
+        .rating input[type="radio"] {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .rating input[type="radio"]:hover {
+            transform: scale(1.1);
+        }
+        
+        .rating:hover input[type="radio"] {
+            opacity: 0.6;
+        }
+        
+        .rating input[type="radio"]:hover,
+        .rating input[type="radio"]:hover ~ input[type="radio"] {
+            opacity: 0.3;
+        }
+        
+        .rating input[type="radio"]:checked,
+        .rating input[type="radio"]:checked ~ input[type="radio"] {
+            opacity: 1;
+        }
+        
+        /* Smooth transitions for modal content */
+        .modal-box {
+            transition: all 0.3s ease;
+        }
+        
+        /* Comment counter styling */
+        #comment-count {
+            font-weight: 500;
+        }
+        
+        /* Success animations */
+        @keyframes bounce-in {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .animate-bounce-in {
+            animation: bounce-in 0.6s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between px-6 py-4">
+            <a href="index.html" class="text-2xl font-bold text-[#04aa6d] hover:text-[#038a5a] transition-colors">StayFinder</a>
+            <span class="text-xl font-semibold text-gray-800">Payment</span>
+            <a href="customer.html" class="btn btn-sm bg-[#04aa6d] text-white hover:bg-[#038a5a]">Back to Dashboard</a>
+        </div>
+    </header>
+    <main class="container mx-auto py-10 px-4 flex flex-col lg:flex-row gap-8">
+        <!-- Invoice Section -->
+        <section class="flex-1 bg-white rounded-lg shadow-sm p-8 mb-8 lg:mb-0">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Invoice</h2>
+            <div class="space-y-4 text-gray-700" id="invoice-details">
+                <div class="flex justify-between">
+                    <span>Property Name:</span>
+                    <span class="font-semibold" id="propertyName">Sample Property</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Location:</span>
+                    <span id="location">Dhaka, Bangladesh</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Check-in:</span>
+                    <span id="checkin">2024-06-10</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Check-out:</span>
+                    <span id="checkout">2024-06-12</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Guests:</span>
+                    <span id="guests">2</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Price per Night:</span>
+                    <span id="pricePerNight">$50</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Nights:</span>
+                    <span id="nights">2</span>
+                </div>
+                <div class="flex justify-between font-semibold border-t pt-2">
+                    <span>Total:</span>
+                    <span id="totalPrice">$100</span>
+                </div>
+                <div class="flex justify-between">
+                    <span>Advance (10%):</span>
+                    <span class="text-[#04aa6d] font-bold" id="advance">$10</span>
+                </div>
+            </div>
+        </section>
+        <div class="mt-6 text-center">
+            <button onclick="generateInvoicePDF()"
+                    class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a] gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+                Get Invoice PDF
+            </button>
+        </div>
+        </section>
+        <!-- Payment Section -->
+        <section class="w-full lg:w-96 bg-white rounded-lg shadow-sm p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Payment</h2>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <button class="payment-method border-2 border-gray-200 rounded-lg p-4 flex flex-col items-center hover:border-[#04aa6d] transition" onclick="selectPayment('visa')">
+                    <img src="Files/Visa.png" alt="Visa" class="h-10 mb-2">
+                    <span class="text-sm font-medium">Visa</span>
+                </button>
+                <button class="payment-method border-2 border-gray-200 rounded-lg p-4 flex flex-col items-center hover:border-[#04aa6d] transition" onclick="selectPayment('mastercard')">
+                    <img src="Files/Mastercard.png" alt="MasterCard" class="h-10 mb-2">
+                    <span class="text-sm font-medium">MasterCard</span>
+                </button>
+                <button class="payment-method border-2 border-gray-200 rounded-lg p-4 flex flex-col items-center hover:border-[#04aa6d] transition" onclick="selectPayment('bkash')">
+                    <img src="Files/BKash.svg" alt="bKash" class="h-10 mb-2">
+                    <span class="text-sm font-medium">bKash</span>
+                </button>
+            </div>
+            <div class="text-center text-gray-500 text-sm">Select a payment method to continue</div>
+        </section>
+    </main>
+    
+    <!-- bKash Modal -->
+    <dialog id="bkash-modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4">bKash Payment</h3>
+            <form id="bkash-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">bKash Number</label>
+                    <input type="text" id="bkash-number" class="input input-bordered w-full" placeholder="Enter your bKash number" required maxlength="11">
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="font-semibold">Amount to Pay:</span>
+                    <span class="text-[#04aa6d] font-bold text-lg" id="bkash-amount">$10</span>
+                </div>
+                <div class="modal-action">
+                    <form method="dialog">
+                        <button class="btn">Cancel</button>
+                    </form>
+                    <button type="submit" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">Proceed</button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+    
+    <!-- bKash PIN Modal -->
+    <dialog id="bkash-pin-modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4">Enter bKash PIN</h3>
+            <div id="pin-error" class="alert alert-error hidden mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="pin-error-message"></span>
+            </div>
+            <form id="bkash-pin-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">PIN</label>
+                    <input type="password" id="bkash-pin" class="input input-bordered w-full" placeholder="Enter your bKash PIN" required maxlength="6" pattern="[0-9]{4,6}">
+                </div>
+                <div class="modal-action">
+                    <form method="dialog">
+                        <button class="btn">Cancel</button>
+                    </form>
+                    <button type="submit" id="confirm-payment-btn" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Confirm Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Success Modal -->
+    <dialog id="success-modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg mb-4 text-green-600">Payment Successful!</h3>
+            <div class="text-center">
+                <svg class="mx-auto mb-4 w-16 h-16 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                <p class="mb-4">Your payment has been processed successfully!</p>
+                <p class="text-sm text-gray-600 mb-4">Payment ID: <span id="success-payment-id" class="font-bold"></span></p>
+                <p class="text-sm text-gray-600 mb-4">Booking ID: <span id="success-booking-id" class="font-bold"></span></p>
+            </div>
+            <div class="modal-action">
+                <button type="button" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a] w-full" onclick="redirectToCustomerDashboard()">
+                    Go to Dashboard
+                </button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Payment Complete Modal (when fully paid) -->
+    <dialog id="payment-complete-modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box max-w-2xl">
+            <!-- Success Header -->
+            <div class="text-center mb-6">
+                <div class="flex justify-center mb-4">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-2xl font-bold text-green-600 mb-2">🎉 Payment Complete!</h3>
+                <p class="text-lg text-gray-700 mb-1">You've cleared all payments for</p>
+                <p class="font-semibold text-gray-800" id="complete-property-name">Property Name</p>
+                <div class="bg-green-50 rounded-lg p-3 mt-4">
+                    <p class="text-sm text-green-700">
+                        <span class="font-semibold">Booking ID:</span> <span id="complete-booking-id"></span> • 
+                        <span class="font-semibold">Payment ID:</span> <span id="complete-payment-id"></span>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Review Section -->
+            <div class="border-t pt-6">
+                <div class="text-center mb-6">
+                    <h4 class="text-xl font-semibold text-gray-800 mb-2">Consider Adding a Review</h4>
+                    <p class="text-gray-600">Help other customers by sharing your experience!</p>
+                </div>
+
+                <form id="review-form" class="space-y-6">
+                    <!-- Star Rating -->
+                    <div class="text-center">
+                        <label class="block text-sm font-medium text-gray-700 mb-3">What do you think?</label>
+                        <div class="flex justify-center items-center gap-2 mb-2">
+                            <span class="text-sm text-gray-500 mr-2">Rating:</span>
+                            <div class="rating rating-lg" id="star-rating">
+                                <input type="radio" name="rating" value="1" class="mask mask-star-2 bg-orange-400" />
+                                <input type="radio" name="rating" value="2" class="mask mask-star-2 bg-orange-400" />
+                                <input type="radio" name="rating" value="3" class="mask mask-star-2 bg-orange-400" />
+                                <input type="radio" name="rating" value="4" class="mask mask-star-2 bg-orange-400" checked />
+                                <input type="radio" name="rating" value="5" class="mask mask-star-2 bg-orange-400" />
+                            </div>
+                            <span class="text-sm text-gray-500 ml-2" id="rating-text">4 stars</span>
+                        </div>
+                    </div>
+
+                    <!-- Comment -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Your Review (Optional)</label>
+                        <textarea 
+                            id="review-comment" 
+                            name="comment" 
+                            rows="4" 
+                            class="textarea textarea-bordered w-full resize-none" 
+                            placeholder="Share your thoughts about this property, host, or overall experience..."
+                            maxlength="500"></textarea>
+                        <div class="text-xs text-gray-500 text-right mt-1">
+                            <span id="comment-count">0</span>/500 characters
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                        <button 
+                            type="button" 
+                            onclick="skipReview()" 
+                            class="btn btn-outline flex-1 order-2 sm:order-1">
+                            Skip for Now
+                        </button>
+                        <button 
+                            type="submit" 
+                            id="submit-review-btn"
+                            class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a] flex-1 order-1 sm:order-2">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                            </svg>
+                            Submit Review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </dialog>
+    
+    <script>
+        // Global variables
+        let bookingData = {};
+        let currentUser = null;
+        let isCheckoutMode = false;
+        const apiBaseUrl = "/api/payments";
+
+        // Check authentication
+        function checkAuth() {
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                alert('Please log in first');
+                window.location.href = './register.html';
+                return false;
+            }
+            
+            currentUser = JSON.parse(userData);
+            return true;
+        }
+
+        // Populate invoice from query params
+        function getQueryParams() {
+            const params = {};
+            window.location.search.substring(1).split('&').forEach(pair => {
+                const [key, value] = pair.split('=');
+                if (key) params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+            });
+            return params;
+        }
+        
+        async function fillInvoice() {
+            const p = getQueryParams();
+            isCheckoutMode = p.checkout === 'true';
+            
+            if (isCheckoutMode && p.bookingId) {
+                // Checkout mode - fetch booking and payment info from API
+                try {
+                    const bookingRes = await fetch(`/api/Bookings/${p.bookingId}`);
+                    if (!bookingRes.ok) throw new Error('Booking not found');
+                    const booking = await bookingRes.json();
+                    
+                    // Fetch existing payments for this booking
+                    const paymentsRes = await fetch(`/api/Payments/booking/${p.bookingId}`);
+                    let totalPaid = 0;
+                    if (paymentsRes.ok) {
+                        const payments = await paymentsRes.json();
+                        totalPaid = payments.filter(x => x.status === 'completed').reduce((sum, x) => sum + x.amountPaid, 0);
+                    }
+                    
+                    // Fill invoice fields
+                    document.getElementById('propertyName').textContent = booking.propertyName;
+                    document.getElementById('location').textContent = booking.location;
+                    document.getElementById('checkin').textContent = booking.bookingFrom.substring(0,10);
+                    document.getElementById('checkout').textContent = booking.bookingTo.substring(0,10);
+                    document.getElementById('guests').textContent = booking.numberOfGuests;
+                    document.getElementById('pricePerNight').textContent = `$${booking.pricePerNight}`;
+                    const nights = Math.ceil((new Date(booking.bookingTo) - new Date(booking.bookingFrom)) / (1000*60*60*24));
+                    document.getElementById('nights').textContent = nights;
+                    document.getElementById('totalPrice').textContent = `$${booking.totalPrice}`;
+                    
+                    // Calculate and show remaining amount
+                    const remainingAmount = Math.max(booking.totalPrice - totalPaid, 0);
+                    document.getElementById('advance').textContent = `$${remainingAmount.toFixed(2)}`;
+                    
+                    // Update label to show "Remaining Amount"
+                    document.querySelector('div:has(#advance) span:first-child').textContent = 'Remaining Amount:';
+                    
+                    // Store for payment
+                    bookingData = {
+                        bookingId: booking.id,
+                        propertyName: booking.propertyName,
+                        location: booking.location,
+                        checkin: booking.bookingFrom.substring(0,10),
+                        checkout: booking.bookingTo.substring(0,10),
+                        guests: booking.numberOfGuests,
+                        pricePerNight: booking.pricePerNight,
+                        nights: nights,
+                        totalPrice: booking.totalPrice,
+                        remainingAmount: remainingAmount,
+                        isCheckout: true
+                    };
+                } catch (err) {
+                    console.error('Error loading booking/payment info:', err);
+                    alert('Could not load booking/payment info.');
+                    window.location.href = 'customer.html';
+                }
+            } else {
+                // Initial booking mode - use query params
+                if (p.propertyName) document.getElementById('propertyName').textContent = p.propertyName;
+                if (p.location) document.getElementById('location').textContent = p.location;
+                if (p.checkin) document.getElementById('checkin').textContent = p.checkin;
+                if (p.checkout) document.getElementById('checkout').textContent = p.checkout;
+                if (p.guests) document.getElementById('guests').textContent = p.guests;
+                if (p.pricePerNight) document.getElementById('pricePerNight').textContent = `$${p.pricePerNight}`;
+                if (p.nights) document.getElementById('nights').textContent = p.nights;
+                if (p.totalPrice) {
+                    document.getElementById('totalPrice').textContent = `$${p.totalPrice}`;
+                    const adv = (parseFloat(p.totalPrice) * 0.10).toFixed(2);
+                    document.getElementById('advance').textContent = `$${adv}`;
+                }
+                
+                // Store booking data for initial payment
+                bookingData = p;
+                bookingData.isCheckout = false;
+            }
+        }
+
+        // Payment method selection
+        function selectPayment(method) {
+            document.querySelectorAll('.payment-method').forEach(btn => btn.classList.remove('selected'));
+            const idx = ['visa','mastercard','bkash'].indexOf(method);
+            if(idx !== -1) document.querySelectorAll('.payment-method')[idx].classList.add('selected');
+            let amount = document.getElementById('advance').textContent;
+            if(method === 'bkash') {
+                document.getElementById('bkash-amount').textContent = amount;
+                document.getElementById('bkash-modal').showModal();
+            }
+        }
+
+        // Show error in PIN modal
+        function showPinError(message) {
+            document.getElementById('pin-error-message').textContent = message;
+            document.getElementById('pin-error').classList.remove('hidden');
+        }
+
+        // Hide error in PIN modal
+        function hidePinError() {
+            document.getElementById('pin-error').classList.add('hidden');
+        }
+
+        // Confirm payment API call
+        async function confirmPayment() {
+            if (!checkAuth()) return;
+            hidePinError();
+            const confirmBtn = document.getElementById('confirm-payment-btn');
+            const originalText = confirmBtn.textContent;
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = 'Processing...';
+            
+            try {
+                let paymentRequest;
+                let endpoint;
+                
+                if (isCheckoutMode) {
+                    // Remaining payment
+                    const remainingAmount = parseFloat(bookingData.remainingAmount);
+                    if (remainingAmount <= 0) {
+                        showPinError('No remaining amount to pay.');
+                        return;
+                    }
+                    
+                    paymentRequest = {
+                        bookingId: parseInt(bookingData.bookingId),
+                        customerId: currentUser.id,
+                        amount: remainingAmount,
+                        paymentMethod: 'bKash'
+                    };
+                    endpoint = `${apiBaseUrl}/remaining`;
+                } else {
+                    // Initial payment (10% advance)
+                    const totalAmount = parseFloat(bookingData.totalPrice);
+                    const advanceAmount = totalAmount * 0.10;
+                    
+                    paymentRequest = {
+                        bookingId: parseInt(bookingData.bookingId),
+                        customerId: currentUser.id,
+                        amount: advanceAmount,
+                        paymentMethod: 'bKash'
+                    };
+                    endpoint = `${apiBaseUrl}/confirm`;
+                }
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paymentRequest)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok && result.status === 'completed') {
+                    document.getElementById('bkash-pin-modal').close();
+                    
+                    // Check if payment is fully complete (remaining payment and fully paid)
+                    if (isCheckoutMode && result.fullyPaid) {
+                        // Show payment complete modal with review option
+                        showPaymentCompleteModal(result, bookingData.propertyName);
+                    } else {
+                        // Show simple success modal
+                        document.getElementById('success-payment-id').textContent = result.paymentId;
+                        document.getElementById('success-booking-id').textContent = result.bookingId;
+                        document.getElementById('success-modal').showModal();
+                    }
+                } else {
+                    showPinError(result.reason || result.error || 'Payment failed. Please try again.');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                showPinError('Network error. Please check your connection and try again.');
+            } finally {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = originalText;
+            }
+        }
+
+        // Show payment complete modal
+        function showPaymentCompleteModal(paymentResult, propertyName) {
+            document.getElementById('complete-property-name').textContent = propertyName || 'Your Property';
+            document.getElementById('complete-booking-id').textContent = paymentResult.bookingId;
+            document.getElementById('complete-payment-id').textContent = paymentResult.paymentId;
+            
+            // Reset form
+            resetReviewForm();
+            
+            // Add animation class to the modal
+            const modal = document.getElementById('payment-complete-modal');
+            modal.showModal();
+            
+            // Add bounce-in animation to success icon
+            setTimeout(() => {
+                const successIcon = modal.querySelector('.bg-green-100');
+                if (successIcon) {
+                    successIcon.classList.add('animate-bounce-in');
+                }
+            }, 100);
+        }
+
+        // Reset review form
+        function resetReviewForm() {
+            // Reset rating to 4 stars (default)
+            document.querySelector('input[name="rating"][value="4"]').checked = true;
+            updateRatingText(4);
+            
+            // Clear comment
+            document.getElementById('review-comment').value = '';
+            updateCommentCount();
+        }
+
+        // Update rating text with better descriptions
+        function updateRatingText(rating) {
+            const ratingText = document.getElementById('rating-text');
+            const ratingLabels = {
+                1: '1 star - Poor',
+                2: '2 stars - Fair', 
+                3: '3 stars - Good',
+                4: '4 stars - Very Good',
+                5: '5 stars - Excellent!'
+            };
+            ratingText.textContent = ratingLabels[rating] || `${rating} stars`;
+            
+            // Add color coding to the rating text
+            const colors = {
+                1: 'text-red-500',
+                2: 'text-orange-500',
+                3: 'text-yellow-500',
+                4: 'text-blue-500',
+                5: 'text-green-500'
+            };
+            
+            // Remove all color classes
+            Object.values(colors).forEach(colorClass => {
+                ratingText.classList.remove(colorClass);
+            });
+            
+            // Add current rating color
+            ratingText.classList.add(colors[rating] || 'text-gray-500');
+        }
+
+        // Update comment character count with color coding
+        function updateCommentCount() {
+            const comment = document.getElementById('review-comment').value;
+            const countElement = document.getElementById('comment-count');
+            countElement.textContent = comment.length;
+            
+            // Color coding based on character count
+            countElement.classList.remove('text-red-500', 'text-yellow-500', 'text-green-500');
+            
+            if (comment.length > 450) {
+                countElement.classList.add('text-red-500');
+            } else if (comment.length > 300) {
+                countElement.classList.add('text-yellow-500');
+            } else if (comment.length > 0) {
+                countElement.classList.add('text-green-500');
+            }
+        }
+
+        // Skip review
+        function skipReview() {
+            if (confirm('Are you sure you want to skip adding a review? You can always add one later from your booking history.')) {
+                document.getElementById('payment-complete-modal').close();
+                redirectToCustomerDashboard();
+            }
+        }
+
+        // Submit review
+        async function submitReview(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submit-review-btn');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `
+                <span class="loading loading-spinner loading-sm mr-2"></span>
+                Submitting...
+            `;
+            
+            try {
+                const rating = document.querySelector('input[name="rating"]:checked')?.value || 4;
+                const comment = document.getElementById('review-comment').value.trim();
+                
+                // Create review request
+                const reviewData = {
+                    bookingId: parseInt(bookingData.bookingId),
+                    customerId: currentUser.id,
+                    rating: parseInt(rating),
+                    comment: comment || null
+                };
+                
+                console.log('Submitting review:', reviewData);
+                
+                // Submit review to backend
+                const response = await fetch('/api/PropertyReviews/from-booking', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(reviewData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Show success message
+                    const modal = document.getElementById('payment-complete-modal');
+                    modal.querySelector('.modal-box').innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-2">Thank You!</h3>
+                            <p class="text-gray-600 mb-4">Your review has been submitted successfully.</p>
+                            <p class="text-sm text-gray-500 mb-6">
+                                Rating: ${rating} stars
+                                ${comment ? '• Review: "' + comment.substring(0, 50) + (comment.length > 50 ? '..."' : '"') : ''}
+                            </p>
+                            <button onclick="closeCompleteModalAndRedirect()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a] w-full">
+                                Go to Dashboard
+                            </button>
+                        </div>
+                    `;
+                    
+                    console.log('Review submitted successfully:', result);
+                } else {
+                    // Handle error response
+                    console.error('Review submission failed:', result);
+                    alert(result.message || 'Failed to submit review. Please try again.');
+                    
+                    // Reset button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+                
+            } catch (error) {
+                console.error('Error submitting review:', error);
+                alert('Network error. Please check your connection and try again.');
+                
+                // Reset button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            }
+        }
+
+        // Close complete modal and redirect
+        function closeCompleteModalAndRedirect() {
+            console.log('Closing complete modal and redirecting...');
+            const modal = document.getElementById('payment-complete-modal');
+            if (modal) {
+                modal.close();
+            }
+            redirectToCustomerDashboard();
+        }
+
+        // Redirect to customer dashboard
+        function redirectToCustomerDashboard() {
+            console.log('Redirecting to customer dashboard...');
+            try {
+                window.location.href = 'customer.html?tab=bookings';
+            } catch (error) {
+                console.error('Error redirecting:', error);
+                // Fallback redirect
+                window.location = 'customer.html';
+            }
+        }
+
+        // Form submissions
+        document.getElementById('bkash-form').onsubmit = function(e) {
+            e.preventDefault();
+            document.getElementById('bkash-modal').close();
+            document.getElementById('bkash-pin-modal').showModal();
+        };
+
+        document.getElementById('bkash-pin-form').onsubmit = function(e) {
+            e.preventDefault();
+            confirmPayment();
+        };
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Payment page loaded');
+            
+            if (!checkAuth()) return;
+            fillInvoice();
+            
+            // Add event listeners for rating system
+            const ratingInputs = document.querySelectorAll('input[name="rating"]');
+            ratingInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    updateRatingText(parseInt(this.value));
+                });
+            });
+            
+            // Add event listener for comment character count
+            const reviewComment = document.getElementById('review-comment');
+            if (reviewComment) {
+                reviewComment.addEventListener('input', updateCommentCount);
+            }
+            
+            // Add event listener for review form submission
+            const reviewForm = document.getElementById('review-form');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', submitReview);
+            }
+            
+            // Add event listeners for dashboard buttons
+            const dashboardButtons = document.querySelectorAll('[onclick*="redirectToCustomerDashboard"]');
+            dashboardButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    redirectToCustomerDashboard();
+                });
+            });
+            
+            // Test redirect function
+            console.log('Redirect function available:', typeof redirectToCustomerDashboard);
+        });
+        function generateInvoicePDF() {
+            try {
+                // Initialize jsPDF
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Set font
+                doc.setFont('helvetica');
+
+                // Header - Company Info
+                doc.setFontSize(20);
+                doc.setTextColor(4, 170, 109); // StayFinder green
+                doc.text('StayFinder', 20, 25);
+
+                doc.setFontSize(12);
+                doc.setTextColor(100, 100, 100);
+                doc.text('Property Rental Platform', 20, 35);
+                doc.text('www.stayfinder.com | support@stayfinder.com', 20, 45);
+
+                // Invoice Title
+                doc.setFontSize(24);
+                doc.setTextColor(0, 0, 0);
+                doc.text('INVOICE', 140, 25);
+
+                // Invoice Info
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                const currentDate = new Date().toLocaleDateString();
+                const invoiceNumber = 'INV-' + Date.now().toString().slice(-6);
+                doc.text(`Invoice #: ${invoiceNumber}`, 140, 35);
+                doc.text(`Date: ${currentDate}`, 140, 45);
+
+                // Customer Info
+                if (currentUser) {
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('Bill To:', 20, 65);
+                    doc.setFontSize(10);
+                    doc.text(currentUser.fullName || 'Customer', 20, 75);
+                    doc.text(currentUser.email || 'customer@email.com', 20, 85);
+                }
+
+                // Line separator
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(200, 200, 200);
+                doc.line(20, 95, 190, 95);
+
+                // Invoice Details Table Header
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text('Booking Details', 20, 110);
+
+                // Table content
+                doc.setFontSize(10);
+                let yPos = 125;
+
+                const invoiceItems = [
+                    ['Property Name:', document.getElementById('propertyName').textContent],
+                    ['Location:', document.getElementById('location').textContent],
+                    ['Check-in Date:', document.getElementById('checkin').textContent],
+                    ['Check-out Date:', document.getElementById('checkout').textContent],
+                    ['Number of Guests:', document.getElementById('guests').textContent],
+                    ['Number of Nights:', document.getElementById('nights').textContent],
+                    ['Price per Night:', document.getElementById('pricePerNight').textContent]
+                ];
+
+                invoiceItems.forEach(item => {
+                    doc.setTextColor(100, 100, 100);
+                    doc.text(item[0], 20, yPos);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text(item[1], 80, yPos);
+                    yPos += 10;
+                });
+
+                // Line separator
+                doc.setLineWidth(0.5);
+                doc.setDrawColor(200, 200, 200);
+                doc.line(20, yPos + 5, 190, yPos + 5);
+
+                // Totals
+                yPos += 20;
+                doc.setFontSize(11);
+
+                // Subtotal
+                const totalPrice = document.getElementById('totalPrice').textContent;
+                doc.setTextColor(100, 100, 100);
+                doc.text('Subtotal:', 120, yPos);
+                doc.setTextColor(0, 0, 0);
+                doc.text(totalPrice, 160, yPos);
+                yPos += 10;
+
+                // Advance Payment
+                const advanceAmount = document.getElementById('advance').textContent;
+                const advanceLabel = document.querySelector('div:has(#advance) span:first-child').textContent;
+                doc.setTextColor(100, 100, 100);
+                doc.text(advanceLabel, 120, yPos);
+                doc.setTextColor(4, 170, 109);
+                doc.text(advanceAmount, 160, yPos);
+                yPos += 5;
+
+                // Total line
+                doc.setLineWidth(0.8);
+                doc.setDrawColor(4, 170, 109);
+                doc.line(120, yPos, 190, yPos);
+
+                yPos += 10;
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text('Total Amount:', 120, yPos);
+                doc.setTextColor(4, 170, 109);
+                doc.text(totalPrice, 160, yPos);
+
+                // Payment Status
+                yPos += 20;
+                doc.setFontSize(10);
+                doc.setTextColor(100, 100, 100);
+                const paymentStatus = isCheckoutMode ? 'Remaining Payment Due' : 'Advance Payment (10%)';
+                doc.text(`Payment Status: ${paymentStatus}`, 20, yPos);
+
+                // Footer
+                const footerY = 250;
+                doc.setFontSize(8);
+                doc.setTextColor(150, 150, 150);
+                doc.text('Thank you for choosing StayFinder!', 20, footerY);
+                doc.text('For any queries, contact us at support@stayfinder.com', 20, footerY + 10);
+
+                // Terms
+                doc.text('Terms & Conditions apply. Visit www.stayfinder.com/terms for details.', 20, footerY + 20);
+
+                // Generate filename
+                const propertyName = document.getElementById('propertyName').textContent.replace(/[^a-zA-Z0-9]/g, '_');
+                const filename = `StayFinder_Invoice_${propertyName}_${invoiceNumber}.pdf`;
+
+                // Save the PDF
+                doc.save(filename);
+
+                // Show success message
+                console.log('Invoice PDF generated successfully');
+
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                console.warn('Failed to generate invoice PDF. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

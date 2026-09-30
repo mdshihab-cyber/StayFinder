@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Dashboard - StayFinder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="font-['Roboto']">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <div class="flex items-center justify-between px-6 py-4">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="text-2xl font-bold text-[#04aa6d] hover:text-[#038a5a] transition-colors">
+                    StayFinder
+                </a>
+                <span class="text-gray-400">|</span>
+                <h1 class="text-xl font-semibold text-gray-800">Customer Dashboard</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="btn btn-sm bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                    Browse Properties
+                </a>
+                <span class="text-sm text-gray-600" id="welcome-msg">Welcome back</span>
+                <button onclick="logout()" class="btn btn-sm bg-red-500 text-white hover:bg-red-600">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content with Tabs -->
+    <div class="container mx-auto p-6">
+        <div class="tabs tabs-boxed mt-4" id="main-tabs">
+            <input type="radio" name="customer_tabs" class="tab" aria-label="PROFILE" id="profile-tab" />
+            <div class="tab-content bg-base-100 border-base-300 p-6">
+                <!-- Profile Management Section -->
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Profile Management</h2>
+                    <button onclick="enableEdit()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]" id="editBtn">
+                        Edit Profile
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <form id="profileForm" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                <input type="text" id="fullName" class="input input-bordered w-full" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="email" class="input input-bordered w-full" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                <input type="text" id="phone" class="input input-bordered w-full" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                                <input type="text" id="role" class="input input-bordered w-full" disabled>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                                <input type="text" id="rating" class="input input-bordered w-full" disabled>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="button" onclick="saveProfile()"
+                                    class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a] hidden" id="saveBtn">
+                                Save Changes
+                            </button>
+                            <button type="button" onclick="cancelEdit()"
+                                    class="btn bg-gray-500 text-white hover:bg-gray-600 hidden" id="cancelBtn">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <input type="radio" name="customer_tabs" class="tab" aria-label="BOOKINGS" id="bookings-tab" />
+            <div class="tab-content bg-base-100 border-base-300 p-6" id="bookings-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">My Bookings</h2>
+                    <button onclick="loadBookings()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="bookings-loading" class="text-center py-8 hidden">
+                    <span class="loading loading-spinner loading-lg"></span>
+                    <p class="text-gray-600 mt-2">Loading your bookings...</p>
+                </div>
+
+                <!-- Bookings Grid -->
+                <div id="bookings-grid" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Bookings will be loaded here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="bookings-empty" class="bg-white rounded-lg shadow-sm p-8 text-center hidden">
+                    <div class="text-gray-500 mb-4">
+                        <svg class="mx-auto mb-4 w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2"></rect>
+                            <line x1="16" x2="16" y1="2" y2="6"></line>
+                            <line x1="8" x2="8" y1="2" y2="6"></line>
+                            <line x1="3" x2="21" y1="10" y2="10"></line>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">No Bookings Yet</h3>
+                    <p class="text-gray-500 mb-4">Your upcoming bookings will appear here</p>
+                    <a href="index.html" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Browse Properties
+                    </a>
+                </div>
+            </div>
+
+            <input type="radio" name="customer_tabs" class="tab" aria-label="PAYMENTS" id="payments-tab" />
+            <div class="tab-content bg-base-100 border-base-300 p-6" id="payments-content">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">My Payments</h2>
+                    <button onclick="loadPayments()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="payments-loading" class="text-center py-8 hidden">
+                    <span class="loading loading-spinner loading-lg"></span>
+                    <p class="text-gray-600 mt-2">Loading your payments...</p>
+                </div>
+
+                <!-- Payments Table -->
+                <div id="payments-table-container" class="overflow-x-auto hidden">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Booking ID</th>
+                                <th>Property</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table-body">
+                            <!-- Payments will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Empty State -->
+                <div id="payments-empty" class="bg-white rounded-lg shadow-sm p-8 text-center hidden">
+                    <div class="text-gray-500 mb-4">
+                        <svg class="mx-auto mb-4 w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">No Payments Yet</h3>
+                    <p class="text-gray-500">Your payment history will appear here</p>
+                </div>
+            </div>
+
+            <input type="radio" name="customer_tabs" class="tab" aria-label="HISTORY" />
+            <div class="tab-content bg-base-100 border-base-300 p-6" id="history-tab">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Booking History</h2>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm p-8 text-center">
+                    <div class="text-gray-500 mb-4">
+                        <svg class="mx-auto mb-4 w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M3 3v5h5"></path>
+                            <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
+                            <path d="M12 7v5l4 2"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">No History Available</h3>
+                    <p class="text-gray-500">Your past bookings will appear here</p>
+                </div>
+            </div>
+
+            <input type="radio" name="customer_tabs" class="tab" aria-label="REVIEWS" />
+            <div class="tab-content bg-base-100 border-base-300 p-6" id="reviews-tab">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">My Reviews</h2>
+                    <button onclick="loadReviews()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="reviews-loading" class="text-center py-8 hidden">
+                    <span class="loading loading-spinner loading-lg"></span>
+                    <p class="text-gray-600 mt-2">Loading your reviews...</p>
+                </div>
+
+                <!-- Reviews Grid -->
+                <div id="reviews-grid" class="space-y-4">
+                    <!-- Reviews will be loaded here -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="reviews-empty" class="bg-white rounded-lg shadow-sm p-8 text-center hidden">
+                    <div class="text-gray-500 mb-4">
+                        <svg class="mx-auto mb-4 w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-700 mb-2">No Reviews Yet</h3>
+                    <p class="text-gray-500 mb-4">Your reviews will appear here after you complete stays and leave feedback</p>
+                    <a href="index.html" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Browse Properties
+                    </a>
+                </div>
+            </div>
+
+            <input type="radio" name="customer_tabs" class="tab" aria-label="SAVED PROPERTIES" />
+            <div class="tab-content bg-base-100 border-base-300 p-6" id="saved-tab">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Saved Properties</h2>
+                    <button onclick="loadSavedProperties()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Refresh
+                    </button>
+                </div>
+
+                <!-- Saved Properties Grid -->
+                <div id="saved-properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Saved properties will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Stay Modal -->
+    <dialog id="edit-stay-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-md">
+            <form method="dialog">
+                <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+            </form>
+
+            <h3 class="font-bold text-lg mb-4">Edit Stay Dates</h3>
+            
+            <!-- Property Info -->
+            <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                <h4 id="edit-property-name" class="font-semibold text-gray-800"></h4>
+                <p id="edit-property-location" class="text-sm text-gray-600"></p>
+            </div>
+
+            <!-- Error Display -->
+            <div id="edit-error" class="alert alert-error hidden mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="edit-error-message"></span>
+            </div>
+
+            <!-- Date Form -->
+            <form id="edit-stay-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Check-in Date</label>
+                    <input type="date" id="edit-checkin" class="input input-bordered w-full" required>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Check-out Date</label>
+                    <input type="date" id="edit-checkout" class="input input-bordered w-full" required>
+                </div>
+
+                <!-- Price Info -->
+                <div class="bg-blue-50 p-3 rounded-lg">
+                    <div class="flex justify-between text-sm">
+                        <span>Nights:</span>
+                        <span id="edit-nights">0</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span>Price per night:</span>
+                        <span id="edit-price-per-night">$0</span>
+                    </div>
+                    <div class="flex justify-between font-semibold border-t pt-2 mt-2">
+                        <span>New Total:</span>
+                        <span id="edit-new-total">$0</span>
+                    </div>
+                </div>
+
+                <div class="modal-action">
+                    <button type="button" onclick="closeEditModal()" class="btn">Cancel</button>
+                    <button type="submit" id="save-dates-btn" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                        Update Dates
+                    </button>
+                </div>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Confirm Booking Modal -->
+    <dialog id="confirm-booking-modal" class="modal modal-bottom sm:modal-middle">
+        <div class="modal-box">
+            <h3 class="text-lg font-bold mb-2">Confirm Your Booking</h3>
+            <p class="mb-4" id="confirm-booking-message"></p>
+            <div class="modal-action">
+                <form method="dialog">
+                    <button class="btn">Cancel</button>
+                </form>
+                <button class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]" id="proceed-payment-btn">Proceed</button>
+            </div>
+        </div>
+    </dialog>
+
+    <!-- Property Details Modal -->
+    <dialog id="property-modal" class="modal">
+        <div class="modal-box w-11/12 max-w-4xl p-0 overflow-hidden">
+            <!-- Modal Header -->
+            <div class="relative">
+                <form method="dialog">
+                    <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2 z-10 bg-white/80 hover:bg-white">
+                        ✕
+                    </button>
+                </form>
+
+                <!-- Property Image -->
+                <div id="modal-image-container" class="h-64 md:h-80 bg-gray-200 relative overflow-hidden">
+                    <img id="modalImage" src="" alt="" class="w-full h-full object-cover hidden">
+                    <div id="modal-image-placeholder" class="w-full h-full flex items-center justify-center">
+                        <span class="text-gray-400 text-lg">No Image Available</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="p-6">
+                <!-- Loading State -->
+                <div id="modal-loading" class="text-center py-8">
+                    <span class="loading loading-spinner loading-lg"></span>
+                    <p class="text-gray-600 mt-2">Loading property details...</p>
+                </div>
+
+                <!-- Property Details -->
+                <div id="modal-content" class="hidden">
+                    <!-- Title and Location -->
+                    <div class="mb-6">
+                        <h2 id="modalTitle" class="text-2xl md:text-3xl font-bold text-gray-800 mb-2"></h2>
+                        <p id="modalLocation" class="text-gray-600 flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span></span>
+                        </p>
+                    </div>
+
+                    <!-- Property Stats -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div id="modalPrice" class="text-xl font-bold text-[#04aa6d]">$0</div>
+                            <div class="text-sm text-gray-600">per night</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div id="modalType" class="text-xl font-bold text-gray-800">Standard</div>
+                            <div class="text-sm text-gray-600">Property Type</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div id="modalStatus" class="text-xl font-bold">
+                                <span class="badge badge-success">Available</span>
+                            </div>
+                            <div class="text-sm text-gray-600">Status</div>
+                        </div>
+                        <div class="text-center p-4 bg-gray-50 rounded-lg">
+                            <div id="modalPlaceRating" class="text-xl font-bold text-gray-800">★ 4.8</div>
+                            <div class="text-sm text-gray-600">Rating</div>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">About this place</h3>
+                        <p id="modalDescription" class="text-gray-600 leading-relaxed"></p>
+                    </div>
+
+                    <!-- Host Info -->
+                    <div class="border-t pt-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Your Host</h3>
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-[#04aa6d] rounded-full flex items-center justify-center">
+                                <span id="modal-host-initial" class="text-white font-bold text-lg">H</span>
+                            </div>
+                            <div class="flex-1">
+                                <h4 id="modalHostName" class="font-semibold text-gray-800">Host Name</h4>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm text-gray-600">Host since 2024</span>
+                                    <span id="modalHostRating" class="text-sm">★ 4.9</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Booking Section -->
+                    <div class="border-t pt-6 mt-6">
+                        <div class="flex flex-col md:flex-row gap-4 items-center">
+                            <div class="flex-1">
+                                <div class="text-2xl font-bold text-gray-800">
+                                    $<span id="modal-price-booking">0</span> <span class="text-base font-normal text-gray-600">per night</span>
+                                </div>
+                                <p class="text-sm text-gray-500">Free cancellation for 48 hours</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="savePropertyFromModal()" class="btn btn-outline gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                    </svg>
+                                    Save
+                                </button>
+                                <button onclick="bookPropertyFromModal()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                                    Reserve Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <script>
+        const apiBaseUrl = "/api/CustomerProfile";
+        const bookingsApiUrl = "/api/Bookings";
+        const paymentsApiUrl = "/api/Payments";
+        const reviewsApiUrl = "/api/PropertyReviews";
+        const savedPropertiesApiUrl = "/api/SavedProperties";
+        const propertyApiUrl = "/api/Property";
+        let currentUser = null;
+        let originalData = {};
+        let currentEditBooking = null;
+        let confirmBookingData = null;
+        let currentPropertyId = null;
+        let currentProperty = null;
+
+        // Check if user is logged in
+        function checkAuth() {
+            const userData = localStorage.getItem('user');
+            if (!userData) {
+                alert('Please log in first');
+                window.location.href = './register.html';
+                return false;
+            }
+            
+            currentUser = JSON.parse(userData);
+            
+            // Ensure user is a customer
+            if (currentUser.role !== 'Customer') {
+                alert('Access denied. This page is for customers only.');
+                window.location.href = './register.html';
+                return false;
+            }
+            
+            return true;
+        }
+
+        // Handle URL parameters for direct tab navigation
+        function handleTabFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+            
+            if (tab === 'bookings') {
+                document.getElementById('bookings-tab').checked = true;
+                loadBookings();
+            } else {
+                document.getElementById('profile-tab').checked = true;
+            }
+        }
+
+        // Load bookings
+        async function loadBookings() {
+            if (!checkAuth()) return;
+
+            const grid = document.getElementById('bookings-grid');
+            const loading = document.getElementById('bookings-loading');
+            const empty = document.getElementById('bookings-empty');
+
+            // Show loading state
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+            empty.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${bookingsApiUrl}/customer/${currentUser.id}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const bookings = await response.json();
+                console.log('Loaded bookings:', bookings);
+
+                loading.classList.add('hidden');
+
+                if (bookings.length === 0) {
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                displayBookings(bookings);
+                grid.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                // Show error message in empty state
+                document.querySelector('#bookings-empty h3').textContent = 'Error Loading Bookings';
+                document.querySelector('#bookings-empty p').textContent = 'Please try refreshing the page';
+            }
+        }
+
+        // Load payments
+        async function loadPayments() {
+            if (!checkAuth()) return;
+
+            const tableContainer = document.getElementById('payments-table-container');
+            const tableBody = document.getElementById('payments-table-body');
+            const loading = document.getElementById('payments-loading');
+            const empty = document.getElementById('payments-empty');
+
+            // Show loading state
+            loading.classList.remove('hidden');
+            tableContainer.classList.add('hidden');
+            empty.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${paymentsApiUrl}/history/${currentUser.id}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const payments = await response.json();
+                console.log('Loaded payments:', payments);
+
+                loading.classList.add('hidden');
+
+                if (payments.length === 0) {
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                displayPayments(payments);
+                tableContainer.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                document.querySelector('#payments-empty h3').textContent = 'Error Loading Payments';
+                document.querySelector('#payments-empty p').textContent = 'Please try refreshing the page';
+            }
+        }
+
+        // Load reviews
+        async function loadReviews() {
+            if (!checkAuth()) return;
+
+            const grid = document.getElementById('reviews-grid');
+            const loading = document.getElementById('reviews-loading');
+            const empty = document.getElementById('reviews-empty');
+
+            // Show loading state
+            loading.classList.remove('hidden');
+            grid.classList.add('hidden');
+            empty.classList.add('hidden');
+
+            try {
+                const response = await fetch(`${reviewsApiUrl}/customer/${currentUser.id}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reviews = await response.json();
+                console.log('Loaded reviews:', reviews);
+
+                loading.classList.add('hidden');
+
+                if (reviews.length === 0) {
+                    empty.classList.remove('hidden');
+                    return;
+                }
+
+                displayReviews(reviews);
+                grid.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error loading reviews:', error);
+                loading.classList.add('hidden');
+                empty.classList.remove('hidden');
+                document.querySelector('#reviews-empty h3').textContent = 'Error Loading Reviews';
+                document.querySelector('#reviews-empty p').textContent = 'Please try refreshing the page';
+            }
+        }
+
+        // Display payments
+        function displayPayments(payments) {
+            const tableBody = document.getElementById('payments-table-body');
+            
+            tableBody.innerHTML = payments.map(payment => {
+                const paymentStatusColor = getPaymentStatusColor(payment.status);
+
+                return `
+                    <tr>
+                        <td>${payment.id}</td>
+                        <td>${payment.bookingId}</td>
+                        <td>
+                            <div>
+                                <strong>${payment.propertyName || 'N/A'}</strong>
+                                <div class="text-xs text-gray-500">${payment.location || ''}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <strong>$${payment.amountPaid.toFixed(2)}</strong>
+                                <div class="text-xs text-gray-500">Total: $${payment.totalAmount.toFixed(2)}</div>
+                                ${payment.remainingAmount > 0 ? 
+                                    `<div class="text-xs text-orange-600">Remaining: $${payment.remainingAmount.toFixed(2)}</div>` : 
+                                    '<div class="text-xs text-green-600">Fully Paid</div>'
+                                }
+                            </div>
+                        </td>
+                        <td>
+                            <div>
+                                <span>${payment.paymentMethod}</span>
+                                <div class="text-xs text-gray-500">${payment.paymentType || 'N/A'}</div>
+                            </div>
+                        </td>
+                        <td>${formatDate(payment.paymentDate)}</td>
+                        <td><span class="badge ${paymentStatusColor} text-white text-xs font-medium">${payment.status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Display bookings
+        function displayBookings(bookings) {
+            const grid = document.getElementById('bookings-grid');
+            
+            grid.innerHTML = bookings.map(booking => {
+                const checkIn = new Date(booking.bookingFrom);
+                const checkOut = new Date(booking.bookingTo);
+                const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+                const statusColor = getStatusColor(booking.status);
+                const paymentColor = getPaymentStatusColor(booking.paymentStatus);
+
+                // Dropdown menu for actions
+                const dropdownMenu = `
+                    <div class="dropdown dropdown-end">
+                        <button tabindex="0" class="btn btn-sm btn-ghost text-gray-600 hover:bg-gray-100">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="1.5"/>
+                                <circle cx="19.5" cy="12" r="1.5"/>
+                                <circle cx="4.5" cy="12" r="1.5"/>
+                            </svg>
+                        </button>
+                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 mt-2">
+                            <li><a href="#" onclick="addNote(${booking.id})">Add Note</a></li>
+                            <li><a href="#" onclick="contactOwner(${booking.id})">Contact Property Owner</a>
+                            </li>
+                            <li><a href="#" onclick="reportProperty(${booking.propertyId})">Report Property</a></li>
+                            <li><a href="#" onclick="addReview(${booking.id}, '${booking.propertyName.replace(/'/g, "\\'")}')">Add Review</a></li>
+                        </ul>
+                    </div>
+                `;
+
+                // Determine which buttons to show
+                let actionButtons = '';
+                const editStayBtn = `
+                    <button class="btn btn-sm bg-blue-500 text-white hover:bg-blue-600 flex-1" onclick="openEditStayModal(
+                        ${booking.id},
+                        '${booking.propertyName.replace(/'/g, "\\'")}',
+                        '${booking.location.replace(/'/g, "\\'")}',
+                        '${booking.bookingFrom.substring(0, 10)}',
+                        '${booking.bookingTo.substring(0, 10)}',
+                        ${booking.numberOfGuests},
+                        ${booking.pricePerNight || 0}
+                    )">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        Edit Stay
+                    </button>
+                `;
+                if (booking.status.toLowerCase() === 'confirmed' && booking.paymentStatus.toLowerCase() === 'paid') {
+                    // Show Check Out, Cancel Booking, and Edit Stay
+                    actionButtons = `
+                        <button class="btn btn-sm bg-[#04aa6d] text-white hover:bg-[#038a5a] flex-1" onclick="checkOutBooking(${booking.id})">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-4 0h4" />
+                            </svg>
+                            Check Out
+                        </button>
+                        ${editStayBtn}
+                        <button class="btn btn-sm bg-red-500 text-white hover:bg-red-600 flex-1" onclick="cancelBooking(${booking.id}, true)">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Cancel Booking
+                        </button>
+                    `;
+                } else if (booking.status.toLowerCase() === 'confirmed' && booking.paymentStatus.toLowerCase() === 'initial') {
+                    // Show Checkout (remaining payment), Edit Stay, Cancel Booking
+                    actionButtons = `
+                        <button class="btn btn-sm bg-orange-500 text-white hover:bg-orange-600 flex-1" onclick="checkOutBooking(${booking.id})">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                            </svg>
+                            Pay Remaining
+                        </button>
+                        ${editStayBtn}
+                        <button class="btn btn-sm bg-red-500 text-white hover:bg-red-600 flex-1" onclick="cancelBooking(${booking.id}, true)">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Cancel Booking
+                        </button>
+                    `;
+                } else {
+                    // Show Confirm Booking, Edit Stay, Delete
+                    actionButtons = `
+                        <button class="btn btn-sm bg-[#04aa6d] text-white hover:bg-[#038a5a] flex-1" onclick="openConfirmBookingModal({
+                            id: ${booking.id},
+                            propertyName: '${booking.propertyName.replace(/'/g, "\\'")}',
+                            location: '${booking.location.replace(/'/g, "\\'")}',
+                            bookingFrom: '${booking.bookingFrom}',
+                            bookingTo: '${booking.bookingTo}',
+                            numberOfGuests: ${booking.numberOfGuests},
+                            pricePerNight: ${booking.pricePerNight || 0},
+                            nights: ${nights},
+                            totalPrice: ${booking.totalPrice}
+                        })">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Confirm Booking
+                        </button>
+                        ${editStayBtn}
+                        <button class="btn btn-sm bg-red-500 text-white hover:bg-red-600 flex-1" onclick="cancelBooking(${booking.id})">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Delete
+                        </button>
+                    `;
+                }
+
+                return `
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+                        <!-- Property Image -->
+                        <div class="relative h-48">
+                            ${booking.imageUrl ? 
+                                `<img src="${booking.imageUrl}" alt="${booking.propertyName}" class="w-full h-full object-cover">` :
+                                '<div class="w-full h-full bg-gray-200 flex items-center justify-center"><span class="text-gray-400">No Image</span></div>'
+                            }
+                            <!-- Status Badges -->
+                            <div class="absolute top-3 left-3 flex gap-2">
+                                <span class="badge ${statusColor} text-white text-xs font-medium">${booking.status}</span>
+                                <span class="badge ${paymentColor} text-white text-xs font-medium">${booking.paymentStatus}</span>
+                            </div>
+                            <!-- Dropdown menu -->
+                            <div class="absolute top-3 right-3">${dropdownMenu}</div>
+                        </div>
+
+                        <!-- Booking Details -->
+                        <div class="p-4">
+                            <!-- Property Info -->
+                            <div class="mb-3">
+                                <h3 class="font-bold text-lg text-gray-800 mb-1">${booking.propertyName}</h3>
+                                <p class="text-sm text-gray-600 flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    ${booking.location}
+                                </p>
+                            </div>
+
+                            <!-- Booking Details Grid -->
+                            <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+                                <div>
+                                    <span class="text-gray-500">Check-in:</span>
+                                    <div class="font-medium">${formatDate(booking.bookingFrom)}</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Check-out:</span>
+                                    <div class="font-medium">${formatDate(booking.bookingTo)}</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Guests:</span>
+                                    <div class="font-medium">${booking.numberOfGuests}</div>
+                                </div>
+                                <div>
+                                    <span class="text-gray-500">Nights:</span>
+                                    <div class="font-medium">${nights}</div>
+                                </div>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold text-gray-700">Total Price:</span>
+                                    <span class="text-xl font-bold text-[#04aa6d]">$${booking.totalPrice}</span>
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Booking ID: #${booking.id} • Booked on ${formatDate(booking.createdAt)}
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-2 mt-2">
+                                ${actionButtons}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Display reviews
+        function displayReviews(reviews) {
+            const grid = document.getElementById('reviews-grid');
+            
+            grid.innerHTML = reviews.map(review => {
+                // Create star rating display
+                const starRating = Array.from({length: 5}, (_, i) => {
+                    const filled = i < review.rating;
+                    return `<svg class="w-5 h-5 ${filled ? 'text-yellow-400' : 'text-gray-300'}" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+                    </svg>`;
+                }).join('');
+
+                const reviewDate = new Date(review.createdAt).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                return `
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-xl font-bold text-gray-800 mb-1">${review.propertyName}</h3>
+                                <p class="text-sm text-gray-500 flex items-center gap-1 mb-3">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    </svg>
+                                    ${review.location}
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2 ml-4">
+                                <button onclick="deleteReview(${review.id})" class="btn btn-sm btn-ghost text-red-500 hover:bg-red-50" title="Delete Review">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Rating Display -->
+                        <div class="flex items-center gap-3 mb-4">
+                            <div class="flex items-center gap-1">
+                                ${starRating}
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">${review.rating} out of 5 stars</span>
+                        </div>
+
+                        <!-- Review Comment -->
+                        ${review.comment ? `
+                            <div class="mb-4">
+                                <p class="text-gray-700 leading-relaxed">${review.comment}</p>
+                            </div>
+                        ` : '<p class="text-gray-500 italic mb-4">No written review</p>'}
+
+                        <!-- Review Footer -->
+                        <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <div class="flex items-center gap-2 text-sm text-gray-500">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                Reviewed on ${reviewDate}
+                            </div>
+                            <span class="text-xs text-gray-400">Review ID: #${review.id}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Delete review function
+        async function deleteReview(reviewId) {
+            if (!confirm('⚠️ Are you sure you want to delete this review?\n\nThis action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${reviewsApiUrl}/${reviewId}?customerId=${currentUser.id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Review deleted successfully');
+                    loadReviews(); // Refresh reviews
+                } else {
+                    alert(`❌ Failed to delete review: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error deleting review:', error);
+                alert('❌ Network error. Please try again.');
+            }
+        }
+
+        // Edit Stay Modal Functions
+        function openEditStayModal(bookingId, propertyName, location, checkIn, checkOut, guests, pricePerNight) {
+            currentEditBooking = {
+                id: bookingId,
+                guests: guests,
+                pricePerNight: pricePerNight
+            };
+
+            // Populate modal
+            document.getElementById('edit-property-name').textContent = propertyName;
+            document.getElementById('edit-property-location').textContent = location;
+            document.getElementById('edit-checkin').value = checkIn;
+            document.getElementById('edit-checkout').value = checkOut;
+            document.getElementById('edit-price-per-night').textContent = `$${pricePerNight}`;
+
+            // Calculate initial values
+            updateEditPricing();
+
+            // Show modal
+            document.getElementById('edit-stay-modal').showModal();
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-stay-modal').close();
+            hideEditError();
+            currentEditBooking = null;
+        }
+
+        function updateEditPricing() {
+            if (!currentEditBooking) return;
+
+            const checkIn = document.getElementById('edit-checkin').value;
+            const checkOut = document.getElementById('edit-checkout').value;
+
+            if (checkIn && checkOut) {
+                const checkInDate = new Date(checkIn);
+                const checkOutDate = new Date(checkOut);
+                const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+                const newTotal = nights * currentEditBooking.pricePerNight * currentEditBooking.guests;
+
+                document.getElementById('edit-nights').textContent = nights;
+                document.getElementById('edit-new-total').textContent = `$${newTotal.toFixed(2)}`;
+            }
+        }
+
+        function showEditError(message) {
+            document.getElementById('edit-error-message').textContent = message;
+            document.getElementById('edit-error').classList.remove('hidden');
+        }
+
+        function hideEditError() {
+            document.getElementById('edit-error').classList.add('hidden');
+        }
+
+        // Handle edit stay form submission
+        document.getElementById('edit-stay-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            hideEditError();
+
+            if (!currentEditBooking) {
+                showEditError('No booking selected');
+                return;
+            }
+
+            const checkIn = document.getElementById('edit-checkin').value;
+            const checkOut = document.getElementById('edit-checkout').value;
+
+            // Validate dates
+            if (new Date(checkIn) >= new Date(checkOut)) {
+                showEditError('Check-out date must be after check-in date');
+                return;
+            }
+
+            if (new Date(checkIn) < new Date()) {
+                showEditError('Check-in date cannot be in the past');
+                return;
+            }
+
+            const saveBtn = document.getElementById('save-dates-btn');
+            const originalText = saveBtn.textContent;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Updating...';
+
+            try {
+                const updateData = {
+                    customerId: currentUser.id,
+                    bookingFrom: checkIn + 'T00:00:00.000Z',
+                    bookingTo: checkOut + 'T00:00:00.000Z'
+                };
+
+                const response = await fetch(`${bookingsApiUrl}/${currentEditBooking.id}/dates`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Booking dates updated successfully!');
+                    closeEditModal();
+                    loadBookings(); // Refresh bookings
+                } else {
+                    showEditError(result.message || 'Failed to update booking dates');
+                }
+
+            } catch (error) {
+                console.error('Error updating booking:', error);
+                showEditError('Network error. Please try again.');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            }
+        });
+
+        // Add event listeners for date changes to update pricing
+        document.getElementById('edit-checkin').addEventListener('change', updateEditPricing);
+        document.getElementById('edit-checkout').addEventListener('change', updateEditPricing);
+
+        // Confirm booking function
+        function confirmBooking(bookingId, propertyName) {
+            // Show confirmation dialog
+            const confirmed = confirm(`Are you sure you want to confirm your booking for "${propertyName}"?\n\nThis will finalize your reservation and you will be redirected to the confirmation page.`);
+            
+            if (confirmed) {
+                // For now, we'll show an alert and redirect to a placeholder page
+                // Later this can be updated to redirect to the actual confirmation page
+                //alert(`✅ Booking #${bookingId} for "${propertyName}" has been confirmed!\n\nRedirecting to confirmation page...`);
+                
+                // Store booking ID in session storage for the confirmation page
+                sessionStorage.setItem('confirmedBookingId', bookingId);
+                
+                // Redirect to confirmation page (to be created later)
+                // For now, we'll redirect to index.html with a parameter
+                window.location.href = `confirmation.html?bookingId=${bookingId}`;
+            }
+        }
+
+        // Cancel/Delete booking function
+        async function cancelBooking(bookingId, isCancel = false) {
+            const actionLabel = isCancel ? 'cancel' : 'delete';
+            if (!confirm(`⚠️ Are you sure you want to ${actionLabel} this booking?\n\nThis action cannot be undone.`)) {
+                return;
+            }
+            try {
+                const response = await fetch(`${bookingsApiUrl}/${bookingId}?customerId=${currentUser.id}`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert(`✅ Booking ${isCancel ? 'cancelled' : 'deleted'} successfully`);
+                    loadBookings();
+                } else {
+                    alert(`❌ Failed to ${actionLabel} booking: ${result.message}`);
+                }
+            } catch (error) {
+                console.error(`Error ${actionLabel} booking:`, error);
+                alert(`❌ Network error. Please try again.`);
+            }
+        }
+
+        // Check Out Booking function
+        function checkOutBooking(bookingId) {
+            // Redirect to Payment.html for final payment
+            const params = new URLSearchParams({
+                bookingId: bookingId,
+                checkout: 'true'
+            });
+            window.location.href = `Payment.html?${params.toString()}`;
+        }
+
+        // View property details
+        function viewPropertyDetails(propertyId) {
+            // Store the property ID in sessionStorage so we can highlight it on the main page
+            sessionStorage.setItem('highlightProperty', propertyId);
+            window.open(`index.html`, '_blank');
+        }
+
+        // Open property details modal
+        async function openPropertyModal(propertyId) {
+            currentPropertyId = propertyId;
+            const modal = document.getElementById('property-modal');
+
+            // Show modal and loading state
+            modal.showModal();
+            showModalLoading();
+
+            try {
+                // Fetch detailed property data
+                const response = await fetch(`${propertyApiUrl}/${propertyId}`);
+                if (!response.ok) throw new Error('Failed to fetch property details');
+
+                const property = await response.json();
+                currentProperty = property; // Store for booking
+                displayPropertyDetails(property);
+
+            } catch (error) {
+                console.error('Error loading property details:', error);
+                // Show error or fallback to basic data from saved properties
+                alert('Failed to load property details. Please try again.');
+                modal.close();
+            }
+        }
+
+        // Display property details in modal
+        function displayPropertyDetails(property) {
+            // Hide loading, show content
+            document.getElementById('modal-loading').classList.add('hidden');
+            document.getElementById('modal-content').classList.remove('hidden');
+
+            // Update image
+            const modalImage = document.getElementById('modalImage');
+            const modalImagePlaceholder = document.getElementById('modal-image-placeholder');
+
+            if (property.imageUrl) {
+                modalImage.src = property.imageUrl;
+                modalImage.alt = property.name;
+                modalImage.classList.remove('hidden');
+                modalImagePlaceholder.classList.add('hidden');
+            } else {
+                modalImage.classList.add('hidden');
+                modalImagePlaceholder.classList.remove('hidden');
+            }
+
+            // Update content
+            document.getElementById('modalTitle').textContent = property.name;
+            document.getElementById('modalLocation').querySelector('span').textContent = property.location;
+            document.getElementById('modalPrice').textContent = `$${property.pricePerDay}`;
+            document.getElementById('modal-price-booking').textContent = property.pricePerDay;
+            document.getElementById('modalType').textContent = property.type;
+            document.getElementById('modalDescription').textContent = property.description || 'No description available for this property.';
+
+            // Update status badge
+            const statusElement = document.getElementById('modalStatus');
+            const statusClass = property.status === 'active' ? 'badge-success' : 'badge-warning';
+            statusElement.innerHTML = `<span class="badge ${statusClass}">${property.status}</span>`;
+
+            // Update host info
+            if (property.host) {
+                document.getElementById('modalHostName').textContent = property.host.name || property.hostName || 'Property Host';
+                document.getElementById('modalHostRating').textContent = `★ ${property.host.rating || '4.9'}`;
+                const initial = (property.host.name || property.hostName || 'H').charAt(0).toUpperCase();
+                document.getElementById('modal-host-initial').textContent = initial;
+            } else {
+                document.getElementById('modalHostName').textContent = property.hostName || 'Property Host';
+                document.getElementById('modalHostRating').textContent = '★ 4.9';
+                document.getElementById('modal-host-initial').textContent = 'H';
+            }
+        }
+
+        // Show modal loading state
+        function showModalLoading() {
+            document.getElementById('modal-loading').classList.remove('hidden');
+            document.getElementById('modal-content').classList.add('hidden');
+        }
+
+        // Save property from modal
+        async function savePropertyFromModal() {
+            if (!currentPropertyId) return;
+            if (!currentUser) {
+                alert('Please sign in to save properties');
+                return;
+            }
+            try {
+                const res = await fetch(`${savedPropertiesApiUrl}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customerId: currentUser.id, propertyId: currentPropertyId })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ Property saved to your favorites!');
+                    // Refresh saved properties if we're on that tab
+                    const savedTab = document.querySelector('input[aria-label="SAVED PROPERTIES"]');
+                    if (savedTab && savedTab.checked) {
+                        loadSavedProperties();
+                    }
+                } else {
+                    alert(`❌ ${data.message || 'Failed to save property'}`);
+                }
+            } catch (e) {
+                console.error('Error saving property:', e);
+                alert('❌ Network error. Please try again.');
+            }
+        }
+
+        // Book property from modal
+        function bookPropertyFromModal() {
+            if (!currentPropertyId || !currentProperty) {
+                alert('Please select a property first');
+                return;
+            }
+
+            if (!currentUser) {
+                alert('Please sign in to book properties');
+                return;
+            }
+
+            // Redirect to index.html for booking (since it has the booking form)
+            sessionStorage.setItem('bookProperty', currentPropertyId);
+            window.location.href = 'index.html';
+        }
+
+        // Remove saved property
+        async function removeSavedProperty(propertyId) {
+            if (!confirm('Remove this property from your saved list?')) return;
+            
+            try {
+                const res = await fetch(savedPropertiesApiUrl, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        customerId: currentUser.id, 
+                        propertyId: propertyId 
+                    })
+                });
+                
+                const result = await res.json();
+                
+                if (res.ok) {
+                    alert('✅ Property removed from saved list');
+                    loadSavedProperties(); // Reload the saved properties
+                    
+                    // Close property modal if it's open for this property
+                    if (currentPropertyId === propertyId) {
+                        const modal = document.getElementById('property-modal');
+                        if (modal.open) {
+                            modal.close();
+                        }
+                    }
+                } else {
+                    alert(`❌ Failed to remove property: ${result.message}`);
+                }
+            } catch (err) {
+                console.error('Error removing property:', err);
+                alert('❌ Network error. Please try again.');
+            }
+        }
+
+        // Browse properties function
+        function browseProperties() {
+            window.location.href = 'index.html';
+        }
+
+        // Profile management functions
+        function enableEdit() {
+            document.querySelectorAll("#profileForm input:not(#role):not(#rating)").forEach(el => {
+                el.disabled = false;
+            });
+            
+            document.getElementById("saveBtn").classList.remove("hidden");
+            document.getElementById("cancelBtn").classList.remove("hidden");
+            document.getElementById("editBtn").style.display = "none";
+        }
+
+        function cancelEdit() {
+            document.getElementById("fullName").value = originalData.fullName || "";
+            document.getElementById("email").value = originalData.email || "";
+            document.getElementById("phone").value = originalData.phone || "";
+            
+            disableEdit();
+        }
+
+        function disableEdit() {
+            document.querySelectorAll("#profileForm input").forEach(el => {
+                el.disabled = true;
+            });
+            
+            document.getElementById("saveBtn").classList.add("hidden");
+            document.getElementById("cancelBtn").classList.add("hidden");
+            document.getElementById("editBtn").style.display = "inline-flex";
+        }
+
+        // Load profile data
+        async function loadProfile() {
+            if (!checkAuth()) return;
+            
+            try {
+                const res = await fetch(`${apiBaseUrl}/${currentUser.id}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const data = await res.json();
+                
+                // Store original data for cancel functionality
+                originalData = { ...data };
+                
+                document.getElementById("fullName").value = data.fullName || "";
+                document.getElementById("email").value = data.email || "";
+                document.getElementById("phone").value = data.phone || "";
+                document.getElementById("role").value = data.role || "";
+                document.getElementById("rating").value = data.rating ? `${data.rating}/5.0` : "0.0/5.0";
+
+                document.getElementById("welcome-msg").innerText = `Welcome back, ${data.fullName || 'User'}`;
+            } catch (err) {
+                console.error('Error loading profile:', err);
+                alert("Could not load profile. Please try again.");
+            }
+        }
+
+        async function saveProfile() {
+            if (!currentUser) return;
+            
+            const updatedData = {
+                fullName: document.getElementById("fullName").value.trim(),
+                email: document.getElementById("email").value.trim(),
+                phone: document.getElementById("phone").value.trim()
+            };
+
+            if (!updatedData.fullName || !updatedData.email) {
+                alert("Please fill in all required fields (Full Name, Email)");
+                return;
+            }
+
+            try {
+                const res = await fetch(`${apiBaseUrl}/${currentUser.id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updatedData)
+                });
+
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    throw new Error(errorData.message || `HTTP error! status: ${res.status}`);
+                }
+
+                const result = await res.json();
+                alert(result.message || "Profile updated successfully!");
+                
+                currentUser.fullName = updatedData.fullName;
+                currentUser.email = updatedData.email;
+                currentUser.phone = updatedData.phone;
+                
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                
+                await loadProfile();
+                disableEdit();
+                
+            } catch (err) {
+                console.error('Error saving profile:', err);
+                alert("Could not save profile: " + err.message);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            alert('Logged out successfully');
+            window.location.href = './register.html';
+        }
+
+        function redirectToPaymentPage(booking) {
+            const params = new URLSearchParams({
+                bookingId: booking.id,
+                propertyName: booking.propertyName,
+                location: booking.location,
+                checkin: booking.bookingFrom.substring(0, 10),
+                checkout: booking.bookingTo.substring(0, 10),
+                guests: booking.numberOfGuests,
+                pricePerNight: booking.pricePerNight,
+                nights: booking.nights,
+                totalPrice: booking.totalPrice
+            });
+            window.location.href = `Payment.html?${params.toString()}`;
+        }
+
+        // Event listener to handle tab switching and URL parameters
+        document.addEventListener('DOMContentLoaded', function() {
+            if (checkAuth()) {
+                handleTabFromURL();
+                loadProfile();
+            }
+
+            // Add event listeners for tabs
+            const tabs = document.querySelectorAll('input[name="customer_tabs"]');
+            tabs.forEach(tab => {
+                tab.addEventListener('change', function() {
+                    const label = this.getAttribute('aria-label');
+                    
+                    if (label === 'BOOKINGS' && this.checked) {
+                        loadBookings();
+                    } else if (label === 'SAVED PROPERTIES' && this.checked) {
+                        loadSavedProperties();
+                    }
+                    else if (label === 'PAYMENTS' && this.checked) {
+                        loadPayments();
+                    } else if (label === 'REVIEWS' && this.checked) {
+                        loadReviews();
+                    }
+                });
+            });
+
+            // Fix: Add event listener for Cancel button in Confirm Booking Modal
+            var confirmBookingModal = document.getElementById('confirm-booking-modal');
+            var cancelBtn = confirmBookingModal.querySelector('form[method="dialog"] .btn');
+            if (cancelBtn) {
+                cancelBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    confirmBookingModal.close();
+                });
+            }
+        });
+
+        function openConfirmBookingModal(booking) {
+            confirmBookingData = booking;
+            const advance = (booking.totalPrice * 0.10).toFixed(2);
+            document.getElementById('confirm-booking-message').innerHTML =
+                `To confirm your booking for <b>"${booking.propertyName}"</b>, you must pay <b>10%</b> of the total payment in advance.<br><br>Total: <b>$${booking.totalPrice}</b><br>Advance Payment: <span class='text-[#04aa6d] font-bold'>$${advance}</span>`;
+            document.getElementById('confirm-booking-modal').showModal();
+        }
+
+        document.getElementById('proceed-payment-btn').onclick = function() {
+            if (!confirmBookingData) return;
+            // Redirect to payment.html with booking details as query params
+            const params = new URLSearchParams({
+                bookingId: confirmBookingData.id,
+                propertyName: confirmBookingData.propertyName,
+                location: confirmBookingData.location,
+                checkin: confirmBookingData.bookingFrom.substring(0, 10),
+                checkout: confirmBookingData.bookingTo.substring(0, 10),
+                guests: confirmBookingData.numberOfGuests,
+                pricePerNight: confirmBookingData.pricePerNight,
+                nights: confirmBookingData.nights,
+                totalPrice: confirmBookingData.totalPrice
+            });
+            window.location.href = `Payment.html?${params.toString()}`;
+        };
+
+        // Utility functions
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function getStatusColor(status) {
+            switch (status.toLowerCase()) {
+                case 'confirmed': return 'bg-green-500';
+                case 'pending': return 'bg-yellow-500';
+                case 'cancelled': return 'bg-red-500';
+                case 'completed': return 'bg-blue-500';
+                default: return 'bg-gray-500';
+            }
+        }
+
+        function getPaymentStatusColor(status) {
+            switch (status.toLowerCase()) {
+                case 'completed': return 'bg-green-600';
+                case 'paid': return 'bg-green-600';
+                case 'initial': return 'bg-blue-500';
+                case 'pending': return 'bg-orange-500';
+                case 'failed': return 'bg-red-600';
+                default: return 'bg-gray-600';
+            }
+        }
+
+        function getRatingColor(rating) {
+            if (rating >= 4) return 'bg-green-500';
+            if (rating >= 2) return 'bg-yellow-500';
+            return 'bg-red-500';
+        }
+
+        // Load saved properties
+        async function loadSavedProperties() {
+            if (!currentUser) return;
+            
+            const grid = document.getElementById('saved-properties-grid');
+            
+            try {
+                // Show loading state
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <span class="loading loading-spinner loading-lg"></span>
+                        <p class="text-gray-600 mt-2">Loading your saved properties...</p>
+                    </div>
+                `;
+
+                const res = await fetch(`${savedPropertiesApiUrl}/customer/${currentUser.id}`);
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
+                const properties = await res.json();
+                displaySavedProperties(properties);
+            } catch (err) {
+                console.error('Error loading saved properties:', err);
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <div class="text-gray-500 mb-4">
+                            <svg class="mx-auto mb-4 w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">Error Loading Saved Properties</h3>
+                        <p class="text-gray-500 mb-4">Please try refreshing the page</p>
+                        <button onclick="loadSavedProperties()" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Display saved properties
+        function displaySavedProperties(properties) {
+            const grid = document.getElementById('saved-properties-grid');
+            
+            if (properties.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-8">
+                        <div class="text-gray-500 mb-4">
+                            <svg class="mx-auto mb-4 w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-700 mb-2">No Saved Properties</h3>
+                        <p class="text-gray-500 mb-4">Properties you save will appear here</p>
+                        <a href="index.html" class="btn bg-[#04aa6d] text-white hover:bg-[#038a5a]">
+                            Browse Properties
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = properties.map(property => `
+                <div class="property-card bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <!-- Property Image -->
+                    <div class="relative h-48 overflow-hidden">
+                        ${property.imageUrl ?
+                            `<img src="${property.imageUrl}" alt="${property.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">` :
+                            '<div class="w-full h-full bg-gray-200 flex items-center justify-center"><span class="text-gray-400">No Image</span></div>'
+                        }
+
+                        <!-- Property Type Badge -->
+                        <div class="absolute top-3 left-3">
+                            <span class="badge ${getTypeBadgeClass(property.type)} text-white text-xs font-medium">
+                                ${property.type}
+                            </span>
+                        </div>
+
+                        <!-- Remove from Saved Button -->
+                        <button onclick="event.stopPropagation(); removeSavedProperty(${property.propertyId})"
+                                class="absolute top-3 right-3 w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 flex items-center justify-center transition-colors">
+                            <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Saved Date -->
+                        <div class="absolute bottom-3 left-3">
+                            <span class="bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                                Saved ${formatDateShort(property.createdAt)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Property Details -->
+                    <div class="p-4">
+                        <!-- Rating and Location -->
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-1">
+                                <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                <span class="text-sm font-medium">4.8</span>
+                                <span class="text-sm text-gray-500">(12 reviews)</span>
+                            </div>
+                            <span class="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded-full ${property.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}">
+                                ${property.status}
+                            </span>
+                        </div>
+
+                        <!-- Property Name -->
+                        <h3 class="font-semibold text-gray-800 mb-1 line-clamp-2">${property.name}</h3>
+
+                        <!-- Location -->
+                        <p class="text-sm text-gray-600 mb-3 flex items-center gap-1">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            ${property.location}
+                        </p>
+
+                        <!-- Price and Actions -->
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-lg font-bold text-gray-800">$${property.pricePerDay}</span>
+                                <span class="text-sm text-gray-600">per night</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="openPropertyModal(${property.propertyId})"
+                                        class="btn btn-sm bg-[#04aa6d] text-white hover:bg-[#038a5a] border-none">
+                                    View Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Helper function to get type badge class (same as index.html)
+        function getTypeBadgeClass(type) {
+            switch (type?.toLowerCase()) {
+                case 'luxury': return 'bg-purple-500';
+                case 'premium': return 'bg-blue-500';
+                case 'standard': return 'bg-green-500';
+                default: return 'bg-gray-500';
+            }
+        }
+
+        // Helper function to format date for display
+        function formatDateShort(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+    </script>
+
+</body>
+</html>
